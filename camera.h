@@ -10,7 +10,7 @@ class camera{
         void render(const hittable& world) {
             initialize();
 
-            std::cout << "P3\n" << image_width << ' ' << image_width << "\n255\n";
+            std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
             for (int j=0; j < image_height; j++) {
                 std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
@@ -33,15 +33,14 @@ class camera{
         vec3   pixel_delta_v;  // Offset to pixel below
 
         void initialize() {
-            image_height = static_cast<int>(image_width / ascpect_ratio);
+            image_height = (int) (image_width / ascpect_ratio);
             image_height = (image_height < 1) ? 1 : image_height;
-
             center = point3(0, 0, 0);
 
             //Determine view port dimesions
             auto focal_length = 1.0;
             auto viewport_height = 2.0;
-            auto viewport_width = viewport_height * ascpect_ratio;
+            auto viewport_width = viewport_height * (double (image_width) / image_height);
 
             //Calculate the vectors across the horizontal and down the vertical viewport edges
             auto viewport_u = vec3(viewport_width, 0, 0);
