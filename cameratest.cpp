@@ -21,7 +21,8 @@ int main() {
     camera cam;
 
     cam.ascpect_ratio = 16.0 / 9.0;
-    cam.image_width = 400;
+    cam.image_width = 2560;
+    cam.samples_per_pixel = 100;
 
     cam.render(world);
 
