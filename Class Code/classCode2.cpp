@@ -3,8 +3,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define SCALE 1.0
+
 #define X 2560
 #define Y 1440
+
+#define TX 500
+#define TY 500
+
+#define loadX 1300
+#define loadY 827
 
 #define frand() (rand() / (RAND_MAX + 1.0))
 
@@ -12,9 +20,12 @@ typedef double vec3[3];
 
 typedef struct{
     vec3 a, b, c;
+    vec3 ta, tb, tc;
 } triangle;
 
 int8_t img[Y][X][3];
+
+vec3 texture[TY][TX];
 
 void vec3_cross(vec3 c, vec3 v, vec3 w){
     c[0] = v[1] * v[2] - w[1] * v[2];
@@ -32,32 +43,93 @@ void vec3_sub(vec3 s, vec3 v, vec3 w){
     s[2] = v[2] - w[2];
 }  
 
+void vec3_add(vec3 s, vec3 v, vec3 w){
+    s[0] = v[0] + w[0];
+    s[1] = v[1] + w[1];
+    s[2] = v[2] + w[2];
+}
+
+void vec3_mul_scalar(vec3 v, vec3 w, double s){
+    v[0] = w[0] * s;
+    v[1] = w[1] * s;
+    v[2] = w[2] * s;
+}
+
+void gen_texture(){
+    int x, y;
+    for (y = 0; y < TY; y++){
+        for (x = 0; x < TX; x++){
+            if (y < TY / 2){
+                texture[y][x][0] = 1.0;
+            } else {
+                if (x < TX / 2) {
+                    texture[y][x][1] = 1.0;
+                } else {
+                    texture[y][x][2] = 1.0;
+                }
+            }
+        }
+    }
+}
+
+void load_texture(){
+    FILE *f;
+    char s[80];
+    int x, y;
+    int r, g, b;
+    f = fopen("texture.ppm", "r");  //text file. Dont open in binary mode
+
+    fscanf(f, "%s\n%d %d %d\n", s, &x, &y, &x); //read header
+    for (y = 0; y < TY; y++){
+        for (x = 0; x < TX; x++){
+            //fread(texture[y][x], 1, 3, f);
+            fscanf(f, "%d %d %d", &r, &g, &b);
+            texture[y][x][0] = r / 256.0;
+            texture[y][x][1] = g / 256.0;
+            texture[y][x][2] = b / 256.0;
+        }
+    }
+    fclose(f);
+}
+
+
 int main(int argc, char *argv[]){
     FILE *f;
     triangle t;
     int x, y, i;
     vec3 p, q;
     vec3 n, na, nb, nc;
-    vec3 d1, d2;
+    vec3 d1, d2; //differences
     vec3 bary;
     vec3 color;
+    vec3 uv;
     int aa = 1;
 
     if (argc == 2) {
         aa = atoi(argv[1]);
     }
-    t.a[0] = 0.1;
-    t.a[1] = 0.1;
-    t.a[2] = 0.0;
+    t.a[0] = 1.0 * SCALE;
+    t.a[1] = 0.0 * SCALE;
+    t.a[2] = 0.0 * SCALE;
 
-    t.b[0] = 0.8;
-    t.b[1] = 0.2;
-    t.b[2] = 0.0;
+    t.b[0] = 1.0 * SCALE;
+    t.b[1] = 0.0 * SCALE;
+    t.b[2] = 0.0 * SCALE;
 
-    t.c[0] = 0.5;
-    t.c[1] = 0.9;
-    t.c[2] = 0.0;
+    t.c[0] = 0.0 * SCALE;
+    t.c[1] = 1.0 * SCALE;
+    t.c[2] = 0.0 * SCALE;
 
+    t.ta[0] = 1.0;
+    t.ta[1] = 0.0;
+    t.tb[0] = 0.0;
+    t.tb[1] = 1.0;
+    t.tc[0] = 0.0;
+    t.tc[1] = 0.5;
+    t.ta[2] = t.tb[2] = t.tc[2] = 0.0;
+
+    //gen_texture();
+    load_texture();
     p[2] = q[2] = 0;
 
     /// n = (b - a) x (c - a)
@@ -94,9 +166,24 @@ int main(int argc, char *argv[]){
                 bary[2] = vec3_dot(n, nc) / vec3_dot(n, n);
 
                 if (bary[0] >= 0 && bary[1] >= 0 && bary[2] >= 0){
-                    color[0] += bary[0];
-                    color[1] += bary[1];
-                    color[2] += bary[2];
+                    //uv = t_a + Beta(t_b - t_a) + Gamma(t_c - t_a)
+                    vec3_sub(d1, t.tb, t.ta);
+                    vec3_sub(d2, t.tc, t.ta);
+                    vec3_mul_scalar(d1, d1, bary[1]);
+                    vec3_mul_scalar(d2, d2, bary[2]);
+                    vec3_add(uv, t.ta, d1);
+                    vec3_add(uv, uv, d2);
+
+                    // Color accoring to barycentric coordinates -- nice gradient
+                    // color[0] += bary[0];
+                    // color[1] += bary[1];
+                    // color[2] += bary[2];
+
+                    // Color according to texture
+                    color[0] += texture[(int) (uv[1] * TY)][(int) (uv[0] * TX)][0];
+                    color[1] += texture[(int) (uv[1] * TY)][(int) (uv[0] * TX)][1];
+                    color[2] += texture[(int) (uv[1] * TY)][(int) (uv[0] * TX)][2];
+
                 }
             }
             img[y][x][0] = color[0] * 255 / aa;
