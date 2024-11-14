@@ -13,6 +13,12 @@ class interval {
     //Constructor sets interval to [min, max]
     interval(double min, double max) : min(min), max(max) {}
 
+    interval(const interval& a, const interval& b) {
+        //Create inteal that encloses twi input intervals
+        min = a.min <= b.min ? a.min : b.min;
+        max = a.max >= b.max ? a.max : b.max;
+    }
+
     //Returns the size of the interval
     double size() const {
         return max - min;
@@ -32,6 +38,11 @@ class interval {
 
     double clamp(double x) const {
         return x < min ? min : x > max ? max : x;
+    }
+
+    interval expand(double delta) const {
+        auto padding = delta/2;
+        return interval(min - padding, max + padding);
     }
 
     static const interval empty, universe;
