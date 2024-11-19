@@ -4,6 +4,7 @@
 #include "vec3.h"
 #include "color.h"
 #include "rtw_stb_image.h"
+#include "perlin.h"
 
 
 class texture {
@@ -71,6 +72,21 @@ class image_texture : public texture {
 
         private:
             rtw_image image;
+};
+
+class noise_texture : public texture {
+    public:
+        noise_texture(double scale) : scale(scale) {}
+        
+        color value(double u, double v, const point3& p) const override {
+            //return color(1,1,1) * 0.5 * (1.0 + noise.noise(scale * p));
+            //return color(1,1,1) * noise.turb(p, 7);
+            return color(0.5, 0.5, 0.5) * (1 + sin(scale * p.z() + 10 * noise.turb(p, 7)));
+        }
+    
+    private: 
+        perlin noise;
+        double scale;
 };
 
 #endif
