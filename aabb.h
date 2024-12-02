@@ -10,7 +10,9 @@ class aabb {
         
         aabb() {} // The default AAB is empty, since intervals are empty by default
 
-        aabb(const interval& x, const interval& y, const interval& z) : x(x), y(y), z(z) {}
+        aabb(const interval& x, const interval& y, const interval& z) : x(x), y(y), z(z) {
+            pad_to_minimums();
+        }
 
         aabb(const point3& a, const point3& b) { 
             // Two points a and b are extrema for the bounding box, so we don't need a particular max/min coord
@@ -66,10 +68,28 @@ class aabb {
         }
 
         static const aabb empty, universe;
+    
+    private:
+        void pad_to_minimums() {
+        // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
+
+        double delta = 0.0001;
+        if (x.size() < delta) x = x.expand(delta);
+        if (y.size() < delta) y = y.expand(delta);
+        if (z.size() < delta) z = z.expand(delta);
+    }
 };
 
 const aabb aabb::empty    = aabb(interval::empty, interval::empty, interval::empty);
 const aabb aabb::universe = aabb(interval::universe, interval::universe, interval::universe);
+
+aabb operator+(const aabb& bbox, const vec3& offset) {
+    return aabb(bbox.x + offset.x(), bbox.y + offset.y(), bbox.z + offset.z());
+}
+
+aabb operator+(const vec3& offset, const aabb& bbox) {
+    return bbox + offset;
+}
 
 #endif
 
