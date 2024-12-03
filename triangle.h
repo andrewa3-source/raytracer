@@ -3,74 +3,83 @@
 
 #include "hittable.h"
 #include "vec3.h"
+#include "vec2.h"
+
+struct Vertex {
+public:
+    vec3 P;
+    vec3 Ng;
+    vec3 UV;
+};
 
 class triangle : public hittable {
-    public:
-        triangle(const point3& a, const point3& b, const point3& c, shared_ptr<material> mat)
-        : a(a), b(b), c(c), mat(mat)
-        {
-            normal = unit_vector(cross(b - a, c - a));
-            D = dot(normal, a);
-            w = normal / dot(normal, normal);
-            set_bounding_box();
-        }
-    
-        virtual void set_bounding_box() {
-            // Compute the bounding box of all three vertices.
-            auto bbox_diagonal1 = aabb(a, b);
-            auto bbox_diagonal2 = aabb(a, c);
-            bbox = aabb(bbox_diagonal1, bbox_diagonal2);
-        }
-    
-        aabb bounding_box() const override { return bbox; }
-    
-        bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
-            auto denom = dot(normal, r.direction());
-    
-            // No hit if the ray is parallel to the plane.
-            if (std::fabs(denom) < 1e-8)
-                return false;
-    
-            // Return false if the hit point parameter t is outside the ray interval.
-            auto t = (D - dot(normal, r.origin())) / denom;
-            if (!ray_t.contains(t))
-                return false;
-    
-            // Determine if the intersection point is inside the triangle.
-            auto intersection = r.at(t);
-            vec3 planar_hitpt_vector = intersection - a;
-            auto alpha = dot(w, cross(planar_hitpt_vector, b - a));
-            auto beta = dot(w, cross(c - a, planar_hitpt_vector));
-    
-            if (!is_interior(alpha, beta, rec))
-                return false;
-    
-            // Ray hits the 2D shape; set the rest of the hit record and return true.
+public:
+    point3 a, b, c;
+    vec3 normal_a, normal_b, normal_c;
+    vec2 texcoord_a, texcoord_b, texcoord_c;
+    shared_ptr<material> mat;
+
+    triangle(const point3& a, const point3& b, const point3& c,
+             const vec3& normal_a, const vec3& normal_b, const vec3& normal_c,
+             const vec2& texcoord_a, const vec2& texcoord_b, const vec2& texcoord_c,
+             shared_ptr<material> mat)
+        : a(a), b(b), c(c),
+          normal_a(normal_a), normal_b(normal_b), normal_c(normal_c),
+          texcoord_a(texcoord_a), texcoord_b(texcoord_b), texcoord_c(texcoord_c),
+          mat(mat) {
+        normal = unit_vector(cross(b - a, c - a));
+    }
+
+    virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+        // Möller–Trumbore intersection algorithm
+        const auto epsilon = 1e-8;
+        vec3 edge1 = b - a;
+        vec3 edge2 = c - a;
+        vec3 h = cross(r.direction(), edge2);
+        auto det = dot(edge1, h);
+        if (det > -epsilon && det < epsilon) return false; // This ray is parallel to this triangle.
+
+        auto inv_det = 1.0 / det;
+        vec3 s = r.origin() - a;
+        auto u = inv_det * dot(s, h);
+        if (u < 0.0 || u > 1.0) return false;
+
+        vec3 q = cross(s, edge1);
+        auto v = inv_det * dot(r.direction(), q);
+        if (v < 0.0 || u + v > 1.0) return false;
+
+        // At this stage we can compute t to find out where the intersection point is on the line.
+        auto t = inv_det * dot(edge2, q);
+        if (t > epsilon) { // ray intersection
             rec.t = t;
-            rec.p = intersection;
+            rec.p = r.at(t);
+            rec.normal = unit_vector((1 - u - v) * normal_a + u * normal_b + v * normal_c);
             rec.mat = mat;
-            rec.set_face_normal(r, normal);
-    
+            rec.u = (1 - u - v) * texcoord_a.x() + u * texcoord_b.x() + v * texcoord_c.x();
+            rec.v = (1 - u - v) * texcoord_a.y() + u * texcoord_b.y() + v * texcoord_c.y();
             return true;
-        }
-    
-        virtual bool is_interior(double a, double b, hit_record& rec) const {
-            interval unit_interval = interval(0, 1);
-            // Given the hit point in plane coordinates, return false if it is outside the
-            // triangle.
-            if (!unit_interval.contains(a) || !unit_interval.contains(b) || a + b > 1)
-                return false;
-    
-            return true;
-        }
-    
-    private:
-        point3 a, b, c;
-        vec3 normal;
-        vec3 w;
-        double D;
-        shared_ptr<material> mat;
-        aabb bbox;
+        } else // This means that there is a line intersection but not a ray intersection.
+            return false;
+    }
+
+    virtual aabb bounding_box() const override {
+        point3 min_point(
+            std::min({a.x(), b.x(), c.x()}),
+            std::min({a.y(), b.y(), c.y()}),
+            std::min({a.z(), b.z(), c.z()})
+        );
+        point3 max_point(
+            std::max({a.x(), b.x(), c.x()}),
+            std::max({a.y(), b.y(), c.y()}),
+            std::max({a.z(), b.z(), c.z()})
+        );
+        return aabb(min_point, max_point);
+    }
+
+private:
+    vec3 normal;
+    aabb bbox;
 };
+
 
 #endif

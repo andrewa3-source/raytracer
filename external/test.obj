@@ -1,0 +1,15 @@
+# Simple OBJ file with a few triangles
+
+# List of vertices
+v 0.0 0.0 0.0
+v 1.0 0.0 0.0
+v 0.0 1.0 0.0
+v 1.0 1.0 0.0
+v 0.0 0.0 1.0
+v 1.0 0.0 1.0
+
+# List of faces (triangles)
+f 1 2 3
+f 2 4 3
+f 1 2 5
+f 2 6 5

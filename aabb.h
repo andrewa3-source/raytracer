@@ -67,6 +67,12 @@ class aabb {
                 return y.size() > z.size() ? 1 : 2; 
         }
 
+        bool valid() const {
+            return (x.size() >= 0) && (y.size() >= 0) && (z.size() >= 0);
+        }
+
+
+
         static const aabb empty, universe;
     
     private:
@@ -89,6 +95,18 @@ aabb operator+(const aabb& bbox, const vec3& offset) {
 
 aabb operator+(const vec3& offset, const aabb& bbox) {
     return bbox + offset;
+}
+
+aabb surrounding_box(const aabb& box0, const aabb& box1) {
+    point3 small(fmin(box0.x.min, box1.x.min),
+                 fmin(box0.y.min, box1.y.min),
+                 fmin(box0.z.min, box1.z.min));
+
+    point3 big(fmax(box0.x.max, box1.x.max),
+               fmax(box0.y.max, box1.y.max),
+               fmax(box0.z.max, box1.z.max));
+
+    return aabb(interval(small.x(), big.x()), interval(small.y(), big.y()), interval(small.z(), big.z()));
 }
 
 #endif

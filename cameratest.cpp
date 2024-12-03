@@ -10,6 +10,9 @@
 #include "material.h"
 #include "texture.h"
 #include "triangle.h"
+#include "trianglemesh.h"
+#include "./external/tiny_obj_loader.h"
+
 
 #define frand() (rand() / (RAND_MAX + 1.0))
 
@@ -394,19 +397,26 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth) {
 void render_triangle(){
     hittable_list world;
 
-    world.add(make_shared<triangle>(point3(0,0,0), point3(1,0,0), point3(0,1,0), make_shared<lambertian>(color(1, 0, 0))));
+    //auto mat = make_shared<metal>(color(.5, .5, .5), .4);
+    auto tex = make_shared<checker_texture>(0.32, color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+    auto mat = make_shared<lambertian>(tex);
+    auto mat2 = make_shared<diffuse_light>(color(7, 7, 7));
+    //auto mat = make_shared<lambertian>(color(0.8, 0.8, 0.0));
+    world.add(make_shared<TriangleMesh>("./external/dino.obj", mat));
+    //world.add(make_shared<sphere>(point3(0, -50, 0), 51, mat2));
+    //world.add(make_shared<sphere>(point3(-28, 13, 5), 4, mat2));
 
     camera cam;
     cam.aspect_ratio      = 16.0 / 9.0;
     cam.image_width       = 400;
-    cam.samples_per_pixel = 100;
+    cam.samples_per_pixel = 10;
     cam.max_depth         = 50;
     cam.background        = color(0.70,0.80,1.00);
 
-    cam.vfov     = 20;
-    cam.lookfrom = point3(5,5,5);
-    cam.lookat   = point3(0,0,0);
-    cam.vup      = vec3(0,1,0);
+    cam.vfov     = 70;
+    cam.lookfrom = point3(-6, 5, 25); // Position the camera at (2, 2, 2)
+    cam.lookat   = point3(0, 10, 0); // Look at the center of the bounding box of the triangles
+    cam.vup      = vec3(0, 1, 0); // Up direction
 
     cam.defocus_angle = 0;
 
