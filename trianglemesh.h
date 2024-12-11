@@ -1,22 +1,22 @@
 #ifndef TRIANGLEMESH_H
 #define TRIANGLEMESH_H
 
+#include <cfloat> // Include for FLT_MAX
+#include <iostream> // Include for debug output
+#include <vector>
 #include "hittable.h"
-#include "hittable_list.h"
-#include "vec3.h"
 #include "triangle.h"
-#include "./external/tiny_obj_loader.h"
-#include <fstream>
-#include <sstream>
-//need to be able to use make_shared triangle
-#include "rtweekend.h"
-
+#include "aabb.h"
+#include "material.h"
+#include "vec3.h"
+#include "interval.h"
+#include "external/tiny_obj_loader.h"
 
 class TriangleMesh : public hittable {
 public:
     std::vector<shared_ptr<triangle>> triangles;
 
-    TriangleMesh(const std::string& filename, shared_ptr<material> mat) {
+    TriangleMesh(const std::string& filename, shared_ptr<material> mat, const point3& camera_position, double texture_scale = 1.0) {
         tinyobj::attrib_t attributes;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
@@ -26,6 +26,23 @@ public:
             std::cerr << "Failed to load/parse .obj file: " << filename << std::endl;
             return;
         }
+
+        // Calculate the bounding box of the entire mesh
+        point3 min_point(FLT_MAX, FLT_MAX, FLT_MAX);
+        point3 max_point(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+        for (const auto& shape : shapes) {
+            for (const auto& index : shape.mesh.indices) {
+                tinyobj::real_t vx = attributes.vertices[3 * index.vertex_index + 0];
+                tinyobj::real_t vy = attributes.vertices[3 * index.vertex_index + 1];
+                tinyobj::real_t vz = attributes.vertices[3 * index.vertex_index + 2];
+
+                min_point = point3(fmin(min_point.x(), vx), fmin(min_point.y(), vy), fmin(min_point.z(), vz));
+                max_point = point3(fmax(max_point.x(), vx), fmax(max_point.y(), vy), fmax(max_point.z(), vz));
+            }
+        }
+
+        vec3 bbox_size = max_point - min_point;
 
         for (const auto& shape : shapes) {
             size_t index_offset = 0;
@@ -39,16 +56,16 @@ public:
                 for (size_t v = 0; v < fv; v++) {
                     // access to vertex
                     tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
-                    tinyobj::real_t vx = attributes.vertices[3*idx.vertex_index+0];
-                    tinyobj::real_t vy = attributes.vertices[3*idx.vertex_index+1];
-                    tinyobj::real_t vz = attributes.vertices[3*idx.vertex_index+2];
+                    tinyobj::real_t vx = attributes.vertices[3 * idx.vertex_index + 0];
+                    tinyobj::real_t vy = attributes.vertices[3 * idx.vertex_index + 1];
+                    tinyobj::real_t vz = attributes.vertices[3 * idx.vertex_index + 2];
                     vertices.push_back(point3(vx, vy, vz));
 
                     // Check if normal index is valid
                     if (idx.normal_index >= 0) {
-                        tinyobj::real_t nx = attributes.normals[3*idx.normal_index+0];
-                        tinyobj::real_t ny = attributes.normals[3*idx.normal_index+1];
-                        tinyobj::real_t nz = attributes.normals[3*idx.normal_index+2];
+                        tinyobj::real_t nx = attributes.normals[3 * idx.normal_index + 0];
+                        tinyobj::real_t ny = attributes.normals[3 * idx.normal_index + 1];
+                        tinyobj::real_t nz = attributes.normals[3 * idx.normal_index + 2];
                         normals.push_back(vec3(nx, ny, nz));
                     } else {
                         normals.push_back(vec3(0, 0, 0)); // Default normal if not provided
@@ -56,23 +73,33 @@ public:
 
                     // Check if texture coordinate index is valid
                     if (idx.texcoord_index >= 0) {
-                        tinyobj::real_t tx = attributes.texcoords[2*idx.texcoord_index+0];
-                        tinyobj::real_t ty = attributes.texcoords[2*idx.texcoord_index+1];
+                        tinyobj::real_t tx = attributes.texcoords[2 * idx.texcoord_index + 0];
+                        tinyobj::real_t ty = attributes.texcoords[2 * idx.texcoord_index + 1];
+                        // Normalize texture coordinates based on the bounding box of the mesh and apply scaling
+                        tx = ((vertices[v].x() - min_point.x()) / bbox_size.x()) * texture_scale;
+                        ty = ((vertices[v].y() - min_point.y()) / bbox_size.y()) * texture_scale;
                         texcoords.push_back(vec2(tx, ty));
                     } else {
-                        texcoords.push_back(vec2(0, 0)); // Default texcoord if not provided
+                        // Generate texture coordinates based on vertex positions if not provided
+                        tinyobj::real_t tx = ((vertices[v].x() - min_point.x()) / bbox_size.x()) * texture_scale;
+                        tinyobj::real_t ty = ((vertices[v].y() - min_point.y()) / bbox_size.y()) * texture_scale;
+                        texcoords.push_back(vec2(tx, ty));
                     }
                 }
                 index_offset += fv;
 
                 if (vertices.size() == 3) {
-                    auto tri = make_shared<triangle>(
-                        vertices[0], vertices[1], vertices[2],
-                        normals[0], normals[1], normals[2],
-                        texcoords[0], texcoords[1], texcoords[2],
-                        mat
-                    );
-                    triangles.push_back(tri); // Ensure the triangle is added to the vector
+                    vec3 normal = unit_vector(cross(vertices[1] - vertices[0], vertices[2] - vertices[0]));
+                    // Check if the normal is facing the camera
+                    if (dot(normal, vertices[0] - camera_position) < 0) {
+                        auto tri = make_shared<triangle>(
+                            vertices[0], vertices[1], vertices[2],
+                            normals[0], normals[1], normals[2],
+                            texcoords[0], texcoords[1], texcoords[2],
+                            mat
+                        );
+                        triangles.push_back(tri); // Ensure the triangle is added to the vector
+                    }
                 }
             }
         }
@@ -95,16 +122,11 @@ public:
     }
 
     virtual aabb bounding_box() const override {
-        if (triangles.empty()) return aabb::empty;
+        if (triangles.empty()) return aabb();
 
-        aabb output_box;
-        bool first_box = true;
-
+        aabb output_box = triangles[0]->bounding_box();
         for (const auto& tri : triangles) {
-            aabb tri_box = tri->bounding_box();
-            if (!tri_box.valid()) return aabb::empty;
-            output_box = first_box ? tri_box : surrounding_box(output_box, tri_box);
-            first_box = false;
+            output_box = surrounding_box(output_box, tri->bounding_box());
         }
 
         return output_box;

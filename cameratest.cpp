@@ -25,6 +25,12 @@ void bouncing_spheres(){
     auto checker = make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(checker)));
 
+    auto tex = make_shared<checker_texture>(0.32, color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+    auto mat = make_shared<lambertian>(color(.9,.1,.1));
+    auto mat2 = make_shared<diffuse_light>(color(7, 7, 7));
+    //auto mat = make_shared<lambertian>(color(0.8, 0.8, 0.0));
+    world.add(make_shared<TriangleMesh>("./external/dino.obj", mat, point3(13, 2, 3)));
+
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -70,7 +76,7 @@ void bouncing_spheres(){
 
     cam.aspect_ratio      = 16.0 / 9.0;
     cam.image_width       = 400;
-    cam.samples_per_pixel = 100;
+    cam.samples_per_pixel = 10;
     cam.max_depth         = 50;
     cam.background        = color(0.70,0.80,1.00);
 
@@ -402,9 +408,9 @@ void render_triangle(){
     auto mat = make_shared<lambertian>(tex);
     auto mat2 = make_shared<diffuse_light>(color(7, 7, 7));
     //auto mat = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    world.add(make_shared<TriangleMesh>("./external/dino.obj", mat));
-    //world.add(make_shared<sphere>(point3(0, -50, 0), 51, mat2));
-    //world.add(make_shared<sphere>(point3(-28, 13, 5), 4, mat2));
+    world.add(make_shared<TriangleMesh>("./external/dino.obj", mat, point3(-6, 5, 25)));
+    world.add(make_shared<sphere>(point3(0, -50, 0), 51, make_shared<dielectric>(1.5)));
+    //world.add(make_shared<sphere>(point3(-28, 13, 5), 4, make_shared<dielectric>(1.5)));
 
     camera cam;
     cam.aspect_ratio      = 16.0 / 9.0;
@@ -424,9 +430,130 @@ void render_triangle(){
 }
 
 
+void render_mario(){
+    hittable_list world;
+
+    camera cam;
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 1080;
+    cam.samples_per_pixel = 2;
+    cam.max_depth         = 50;
+    cam.background        = color(0.70,0.80,1.00);
+
+    cam.vfov     = 73;
+    cam.lookfrom = point3(200, -200, 200); // Position the camera at (2, 2, 2)
+    cam.lookat   = point3(40, 125, 125); // Look at the center of the bounding box of the triangles
+    cam.vup      = vec3(0, 0, 1); // Up direction
+
+    cam.defocus_angle = 0;
+
+    auto mat = make_shared<lambertian>(color(.5, .5, .5));
+    
+    // auto mat0 = make_shared<lambertian>(color(1, 1, 0.0));
+    // world.add(make_shared<TriangleMesh>("./external/model_0.obj", mat0, cam.lookfrom));
+
+    auto tex1 = make_shared<noise_texture>(8, color(.478, .153, 0));
+    auto mat1 = make_shared<lambertian>(tex1);
+    //world.add(make_shared<TriangleMesh>("./external/model_1.obj", mat1, cam.lookfrom));
+
+    // auto tex2 = make_shared<checker_texture>(2, color(0.588, 0.588, 0.588), color(0.749, 0.749, 0.749));
+    // auto mat2 = make_shared<lambertian>(tex2);
+    // world.add(make_shared<TriangleMesh>("./external/model_2.obj", mat2, cam.lookfrom));
+
+    auto tex3 = make_shared<image_texture>("brick2.jpg");
+    auto mat3 = make_shared<lambertian>(tex3);
+    //world.add(make_shared<TriangleMesh>("./external/model_3.obj", mat3, cam.lookfrom));
+
+    auto tex4 = make_shared<noise_texture>(12, color(.35, .25, .25));
+    auto mat4 = make_shared<lambertian>(tex4);
+    //world.add(make_shared<TriangleMesh>("./external/model_4.obj", mat4, cam.lookfrom, 1));
+
+    auto tex5 = make_shared<noise_texture>(12, color(.15, .15, .15));
+    auto mat5 = make_shared<lambertian>(tex5);
+    //world.add(make_shared<TriangleMesh>("./external/model_5.obj", mat5, cam.lookfrom));
+
+    //world.add(make_shared<TriangleMesh>("./external/model_6.obj", mat, cam.lookfrom));
+
+    auto tex7 = make_shared<noise_texture>(8, color(.45, .25, .25));
+    auto mat7 = make_shared<lambertian>(tex7);
+    //world.add(make_shared<TriangleMesh>("./external/model_7.obj", mat7, cam.lookfrom));
+
+
+    world.add(make_shared<TriangleMesh>("./external/model_8.obj", mat3, cam.lookfrom, .5));
+    // world.add(make_shared<TriangleMesh>("./external/model_9.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_10.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_11.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_12.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_13.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_14.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_15.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_16.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_17.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_18.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_19.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_20.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_21.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_22.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_23.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_24.obj", mat, cam.lookfrom));
+    // world.add(make_shared<TriangleMesh>("./external/model_25.obj", mat, cam.lookfrom));
+    // world.add(make_shared<sphere>(point3(0, -50, 0), 51, make_shared<dielectric>(1.5)));
+    //world.add(make_shared<sphere>(point3(-28, 13, 5), 4, make_shared<dielectric>(1.5)));
+
+    
+
+    cam.render(world);
+}
+
+void render_single_triangle() {
+    hittable_list world;
+
+    // Load the texture
+    auto texture = make_shared<image_texture>("brick2.jpg");
+
+    // Create a material with the texture
+    auto mat = make_shared<lambertian>(texture);
+
+    // Define the vertices of the triangle
+    point3 v0(0, 0, 0);
+    point3 v1(1, 0, 0);
+    point3 v2(0, 1, 0);
+
+    // Define the normals of the triangle
+    vec3 n0(0, 0, 1);
+    vec3 n1(0, 0, 1);
+    vec3 n2(0, 0, 1);
+
+    // Define the texture coordinates of the triangle
+    vec2 t0(0, 0);
+    vec2 t1(1, 0);
+    vec2 t2(0, 1);
+
+    // Create the triangle
+    auto tri = make_shared<triangle>(v0, v1, v2, n0, n1, n2, t0, t1, t2, mat);
+    world.add(tri);
+
+    // Set up the camera
+    camera cam;
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 10;
+    cam.max_depth = 50;
+    cam.background = color(0.70, 0.80, 1.00);
+
+    cam.vfov = 40.0;
+    cam.lookfrom = point3(0, 0, 2);
+    cam.lookat = point3(0, 0, 0);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.defocus_angle = 0;
+
+    // Render the scene
+    cam.render(world);
+}
 
 int main() {
-    switch(10){
+    switch(11){
         case 1: bouncing_spheres(); break;
         case 2: checkered_spheres(); break;
         case 3: external_img(); break;
@@ -437,6 +564,8 @@ int main() {
         case 8: cornell_smoke(); break;
         case 9: final_scene(800, 100, 50); break;
         case 10: render_triangle(); break;
+        case 11: render_mario(); break;
+        case 12: render_single_triangle(); break;
         default: final_scene(400, 250, 4); break;
 
     }
