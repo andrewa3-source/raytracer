@@ -55,9 +55,16 @@ class checker_texture : public texture {
         shared_ptr<texture> odd;    
 };
 
+enum WrapMode {
+    REPEAT,
+    CLAMP,
+    MIRROR
+};
+
 class image_texture : public texture {
 public:
-    image_texture(const char* filename) {
+    image_texture(const char* filename, WrapMode wrap_mode = REPEAT)
+        : wrap(wrap_mode) {
         auto components_per_pixel = 3;
         data = stbi_load(filename, &width, &height, &components_per_pixel, components_per_pixel);
 
@@ -70,20 +77,23 @@ public:
     }
 
     ~image_texture() {
-        delete data;
+        delete[] data;
     }
 
     virtual color value(double u, double v, const point3& p) const override {
         if (data == nullptr) return color(0, 1, 1); // Return cyan if no texture data
 
-        // Clamp input texture coordinates to [0,1] x [1,0]
-        u = clamp(u, 0.0, 1.0);
-        v = 1.0 - clamp(v, 0.0, 1.0); // Flip V to image coordinates
+        // Apply wrapping
+        u = wrap_coordinate(u);
+        v = wrap_coordinate(v);
+
+        // Flip V to image coordinates
+        v = 1.0 - v;
 
         auto i = static_cast<int>(u * width);
         auto j = static_cast<int>(v * height);
 
-        // Clamp integer mapping, since actual coordinates should be less than 1.0
+        // Clamp integer mapping to avoid overflow
         if (i >= width)  i = width - 1;
         if (j >= height) j = height - 1;
 
@@ -94,9 +104,24 @@ public:
     }
 
 private:
-    unsigned char *data;
+    unsigned char* data;
     int width, height;
     int bytes_per_scanline;
+    WrapMode wrap;
+
+    // Function to apply wrapping based on the mode
+    double wrap_coordinate(double coord) const {
+        switch (wrap) {
+        case REPEAT:
+            return coord - floor(coord); // Repeat by removing integer part
+        case MIRROR:
+            coord = fabs(coord);        // Mirror by absolute value
+            return (static_cast<int>(coord) % 2 == 0) ? coord - floor(coord) : 1.0 - (coord - floor(coord));
+        case CLAMP:
+        default:
+            return clamp(coord, 0.0, 1.0); // Clamp to [0,1]
+        }
+    }
 };
 
 class noise_texture : public texture {

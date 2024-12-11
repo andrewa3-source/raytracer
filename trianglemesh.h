@@ -76,14 +76,14 @@ public:
                         tinyobj::real_t tx = attributes.texcoords[2 * idx.texcoord_index + 0];
                         tinyobj::real_t ty = attributes.texcoords[2 * idx.texcoord_index + 1];
                         // Normalize texture coordinates based on the bounding box of the mesh and apply scaling
-                        tx = ((vertices[v].x() - min_point.x()) / bbox_size.x()) * texture_scale;
-                        ty = ((vertices[v].y() - min_point.y()) / bbox_size.y()) * texture_scale;
+                        //tx = ((vertices[v].x() - min_point.x()) / bbox_size.x()) * texture_scale;
+                        //ty = ((vertices[v].y() - min_point.y()) / bbox_size.y()) * texture_scale;
                         texcoords.push_back(vec2(tx, ty));
                     } else {
                         // Generate texture coordinates based on vertex positions if not provided
-                        tinyobj::real_t tx = ((vertices[v].x() - min_point.x()) / bbox_size.x()) * texture_scale;
-                        tinyobj::real_t ty = ((vertices[v].y() - min_point.y()) / bbox_size.y()) * texture_scale;
-                        texcoords.push_back(vec2(tx, ty));
+                        //tinyobj::real_t tx = ((vertices[v].x() - min_point.x()) / bbox_size.x()) * texture_scale;
+                        //tinyobj::real_t ty = ((vertices[v].y() - min_point.y()) / bbox_size.y()) * texture_scale;
+                        texcoords.push_back(vec2(0, 0));
                     }
                 }
                 index_offset += fv;

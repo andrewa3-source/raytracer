@@ -436,7 +436,7 @@ void render_mario(){
     camera cam;
     cam.aspect_ratio      = 16.0 / 9.0;
     cam.image_width       = 1080;
-    cam.samples_per_pixel = 2;
+    cam.samples_per_pixel = 10;
     cam.max_depth         = 50;
     cam.background        = color(0.70,0.80,1.00);
 
@@ -516,8 +516,8 @@ void render_single_triangle() {
 
     // Define the vertices of the triangle
     point3 v0(0, 0, 0);
-    point3 v1(1, 0, 0);
-    point3 v2(0, 1, 0);
+    point3 v1(100, 0, 0);
+    point3 v2(0, 100, 0);
 
     // Define the normals of the triangle
     vec3 n0(0, 0, 1);
@@ -530,8 +530,9 @@ void render_single_triangle() {
     vec2 t2(0, 1);
 
     // Create the triangle
-    auto tri = make_shared<triangle>(v0, v1, v2, n0, n1, n2, t0, t1, t2, mat);
-    world.add(tri);
+    //auto tri = make_shared<triangle>(v0, v1, v2, n0, n1, n2, t0, t1, t2, mat);
+    auto mesh = make_shared<TriangleMesh>("test.obj", mat, point3(0, 0, 2));
+    world.add(mesh);
 
     // Set up the camera
     camera cam;
@@ -541,7 +542,7 @@ void render_single_triangle() {
     cam.max_depth = 50;
     cam.background = color(0.70, 0.80, 1.00);
 
-    cam.vfov = 40.0;
+    cam.vfov = 60.0;
     cam.lookfrom = point3(0, 0, 2);
     cam.lookat = point3(0, 0, 0);
     cam.vup = vec3(0, 1, 0);
@@ -551,6 +552,9 @@ void render_single_triangle() {
     // Render the scene
     cam.render(world);
 }
+
+
+
 
 int main() {
     switch(11){
