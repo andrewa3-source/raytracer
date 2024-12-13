@@ -99,7 +99,7 @@ public:
 
         const auto color_scale = 1.0 / 255.0;
         auto pixel = data + j * bytes_per_scanline + i * 3;
-
+        
         return color(color_scale * pixel[0], color_scale * pixel[1], color_scale * pixel[2]);
     }
 

@@ -414,8 +414,8 @@ void render_triangle(){
 
     camera cam;
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 400;
-    cam.samples_per_pixel = 10;
+    cam.image_width       = 1080;
+    cam.samples_per_pixel = 20;
     cam.max_depth         = 50;
     cam.background        = color(0.70,0.80,1.00);
 
@@ -435,8 +435,8 @@ void render_mario(){
 
     camera cam;
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 1080;
-    cam.samples_per_pixel = 10;
+    cam.image_width       = 1920;
+    cam.samples_per_pixel = 200;
     cam.max_depth         = 50;
     cam.background        = color(0.70,0.80,1.00);
 
@@ -449,54 +449,127 @@ void render_mario(){
 
     auto mat = make_shared<lambertian>(color(.5, .5, .5));
     
-    // auto mat0 = make_shared<lambertian>(color(1, 1, 0.0));
-    // world.add(make_shared<TriangleMesh>("./external/model_0.obj", mat0, cam.lookfrom));
+    auto mat0 = make_shared<lambertian>(color(1, 1, 0.0));
+    world.add(make_shared<TriangleMesh>("./external/model_0.obj", mat0, cam.lookfrom));
 
-    auto tex1 = make_shared<noise_texture>(8, color(.478, .153, 0));
+    //done
+    auto tex1 = make_shared<image_texture>("tex1.png");
     auto mat1 = make_shared<lambertian>(tex1);
-    //world.add(make_shared<TriangleMesh>("./external/model_1.obj", mat1, cam.lookfrom));
+    world.add(make_shared<TriangleMesh>("./external/model_1.obj", mat1, cam.lookfrom));
 
-    // auto tex2 = make_shared<checker_texture>(2, color(0.588, 0.588, 0.588), color(0.749, 0.749, 0.749));
-    // auto mat2 = make_shared<lambertian>(tex2);
-    // world.add(make_shared<TriangleMesh>("./external/model_2.obj", mat2, cam.lookfrom));
+    //done
+    auto tex2 = make_shared<checker_texture>(2, color(0.588, 0.588, 0.588), color(0.749, 0.749, 0.749));
+    auto mat2 = make_shared<lambertian>(tex2);
+    world.add(make_shared<TriangleMesh>("./external/model_2.obj", mat2, cam.lookfrom));
 
-    auto tex3 = make_shared<image_texture>("brick2.jpg");
+
+    auto tex3 = make_shared<image_texture>("tex3.png");
     auto mat3 = make_shared<lambertian>(tex3);
-    //world.add(make_shared<TriangleMesh>("./external/model_3.obj", mat3, cam.lookfrom));
+    world.add(make_shared<TriangleMesh>("./external/model_3.obj", mat3, cam.lookfrom));
 
-    auto tex4 = make_shared<noise_texture>(12, color(.35, .25, .25));
+    //done
+    auto tex4 = make_shared<image_texture>("tex4.png");
     auto mat4 = make_shared<lambertian>(tex4);
-    //world.add(make_shared<TriangleMesh>("./external/model_4.obj", mat4, cam.lookfrom, 1));
+    world.add(make_shared<TriangleMesh>("./external/model_4.obj", mat4, cam.lookfrom, 1));
 
-    auto tex5 = make_shared<noise_texture>(12, color(.15, .15, .15));
+    //done
+    auto tex5 = make_shared<image_texture>("tex5.png");
     auto mat5 = make_shared<lambertian>(tex5);
-    //world.add(make_shared<TriangleMesh>("./external/model_5.obj", mat5, cam.lookfrom));
+    world.add(make_shared<TriangleMesh>("./external/model_5.obj", mat5, cam.lookfrom));
 
-    //world.add(make_shared<TriangleMesh>("./external/model_6.obj", mat, cam.lookfrom));
+    //unsure
+    // auto tex6 = make_shared<image_texture>("tex7.png");
+    // auto mat6 = make_shared<lambertian>(tex6);
+    // world.add(make_shared<TriangleMesh>("./external/model_6.obj", mat6, cam.lookfrom));
 
-    auto tex7 = make_shared<noise_texture>(8, color(.45, .25, .25));
+    //done
+    auto tex7 = make_shared<image_texture>("tex7.png");
     auto mat7 = make_shared<lambertian>(tex7);
-    //world.add(make_shared<TriangleMesh>("./external/model_7.obj", mat7, cam.lookfrom));
+    world.add(make_shared<TriangleMesh>("./external/model_7.obj", mat7, cam.lookfrom));
 
+    //done
+    auto tex8 = make_shared<image_texture>("tex8.png");
+    auto mat8 = make_shared<lambertian>(tex8);
+    world.add(make_shared<TriangleMesh>("./external/model_8.obj", mat8, cam.lookfrom, .5));
 
-    world.add(make_shared<TriangleMesh>("./external/model_8.obj", mat3, cam.lookfrom, .5));
-    // world.add(make_shared<TriangleMesh>("./external/model_9.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_10.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_11.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_12.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_13.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_14.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_15.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_16.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_17.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_18.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_19.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_20.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_21.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_22.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_23.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_24.obj", mat, cam.lookfrom));
-    // world.add(make_shared<TriangleMesh>("./external/model_25.obj", mat, cam.lookfrom));
+    //done
+    auto tex9 = make_shared<image_texture>("tex9.png");
+    auto mat9 = make_shared<lambertian>(tex9);
+    world.add(make_shared<TriangleMesh>("./external/model_9.obj", mat9, cam.lookfrom));
+
+    //done
+    auto tex10 = make_shared<image_texture>("tex10.png");
+    auto mat10 = make_shared<lambertian>(tex10);
+    world.add(make_shared<TriangleMesh>("./external/model_10.obj", mat10, cam.lookfrom));
+
+    //unsure
+    //world.add(make_shared<TriangleMesh>("./external/model_11.obj", mat, cam.lookfrom));
+
+    //done - box on top
+    auto tex12 = make_shared<image_texture>("tex12.png");
+    auto mat12 = make_shared<lambertian>(tex12);
+    world.add(make_shared<TriangleMesh>("./external/model_12.obj", mat12, cam.lookfrom));
+
+    //done - grass
+    auto tex13 = make_shared<image_texture>("tex13.png");
+    auto mat13 = make_shared<lambertian>(tex13);
+    world.add(make_shared<TriangleMesh>("./external/model_13.obj", mat13, cam.lookfrom));
+
+    //done - chimney
+    auto tex14 = make_shared<image_texture>("tex14.png");
+    auto mat14 = make_shared<lambertian>(tex14);
+    world.add(make_shared<TriangleMesh>("./external/model_14.obj", mat14, cam.lookfrom));
+
+    //done - red roof
+    auto tex15 = make_shared<image_texture>("tex15.png");
+    auto mat15 = make_shared<lambertian>(tex15);
+    world.add(make_shared<TriangleMesh>("./external/model_15.obj", mat15, cam.lookfrom));
+
+    //done - yellow bricks
+    auto tex16 = make_shared<image_texture>("tex16.png");
+    auto mat16 = make_shared<lambertian>(tex16);
+    world.add(make_shared<TriangleMesh>("./external/model_16.obj", mat16, cam.lookfrom));
+
+    //no visible triangles in render
+    //world.add(make_shared<TriangleMesh>("./external/model_17.obj", mat, cam.lookfrom));
+
+    //done - fences - might need redone
+    auto tex18 = make_shared<image_texture>("tex18.png");
+    auto mat18 = make_shared<lambertian>(tex18);
+    world.add(make_shared<TriangleMesh>("./external/model_18.obj", mat18, cam.lookfrom));
+
+    //done - water
+    auto tex19 = make_shared<image_texture>("tex19.jpg");
+    auto mat19 = make_shared<lambertian>(tex19);
+    world.add(make_shared<TriangleMesh>("./external/model_19.obj", mat19, cam.lookfrom));
+
+    //done - flower bed sides
+    auto tex20 = make_shared<image_texture>("tex20.png");
+    auto mat20 = make_shared<lambertian>(tex20);
+    world.add(make_shared<TriangleMesh>("./external/model_20.obj", mat20, cam.lookfrom));
+
+    //done flowers
+    auto tex21 = make_shared<image_texture>("tex21.png");
+    auto mat21 = make_shared<lambertian>(tex21);
+    world.add(make_shared<TriangleMesh>("./external/model_21.obj", mat21, cam.lookfrom));
+
+    //done - eyes
+    auto tex22 = make_shared<image_texture>("tex22.png");
+    auto mat22 = make_shared<lambertian>(tex22);
+    world.add(make_shared<TriangleMesh>("./external/model_22.obj", mat22, cam.lookfrom));
+
+    //unsure
+    //world.add(make_shared<TriangleMesh>("./external/model_23.obj", mat, cam.lookfrom));
+
+    //done - platforms in back
+    auto tex24 = make_shared<image_texture>("tex24.png");
+    auto mat24 = make_shared<lambertian>(tex24);
+    world.add(make_shared<TriangleMesh>("./external/model_24.obj", mat24, cam.lookfrom));
+
+    //done - wood fence
+    auto tex25 = make_shared<image_texture>("tex25.png");
+    auto mat25 = make_shared<lambertian>(tex25);
+    world.add(make_shared<TriangleMesh>("./external/model_25.obj", mat25, cam.lookfrom));
     // world.add(make_shared<sphere>(point3(0, -50, 0), 51, make_shared<dielectric>(1.5)));
     //world.add(make_shared<sphere>(point3(-28, 13, 5), 4, make_shared<dielectric>(1.5)));
 
@@ -509,7 +582,7 @@ void render_single_triangle() {
     hittable_list world;
 
     // Load the texture
-    auto texture = make_shared<image_texture>("brick2.jpg");
+    auto texture = make_shared<image_texture>("mmm.png");
 
     // Create a material with the texture
     auto mat = make_shared<lambertian>(texture);
@@ -538,7 +611,7 @@ void render_single_triangle() {
     camera cam;
     cam.aspect_ratio = 16.0 / 9.0;
     cam.image_width = 400;
-    cam.samples_per_pixel = 10;
+    cam.samples_per_pixel = 100;
     cam.max_depth = 50;
     cam.background = color(0.70, 0.80, 1.00);
 
@@ -557,7 +630,7 @@ void render_single_triangle() {
 
 
 int main() {
-    switch(11){
+    switch(10){
         case 1: bouncing_spheres(); break;
         case 2: checkered_spheres(); break;
         case 3: external_img(); break;

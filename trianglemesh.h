@@ -111,10 +111,12 @@ public:
         auto closest_so_far = ray_t.max;
 
         for (const auto& tri : triangles) {
-            if (tri->hit(r, interval(ray_t.min, closest_so_far), temp_rec)) {
+            if (tri->hit(r, interval(0, closest_so_far), temp_rec)) {
                 hit_anything = true;
                 closest_so_far = temp_rec.t;
                 rec = temp_rec;
+                //std::cout << "Hit triangle at t = " << temp_rec.t << ", point = " << temp_rec.p << ", normal = " << temp_rec.normal << std::endl;
+            
             }
         }
 
@@ -131,6 +133,7 @@ public:
 
         return output_box;
     }
+    
 };
 
 #endif

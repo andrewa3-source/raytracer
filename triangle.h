@@ -31,36 +31,36 @@ public:
     }
 
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
-        // Möller–Trumbore intersection algorithm
-        const auto epsilon = 1e-8;
-        vec3 edge1 = b - a;
-        vec3 edge2 = c - a;
-        vec3 h = cross(r.direction(), edge2);
-        auto det = dot(edge1, h);
-        if (det > -epsilon && det < epsilon) return false; // This ray is parallel to this triangle.
+    // Möller–Trumbore intersection algorithm
+    const auto epsilon = 1e-8;
+    vec3 edge1 = b - a;
+    vec3 edge2 = c - a;
+    vec3 h = cross(r.direction(), edge2);
+    auto det = dot(edge1, h);
+    if (det > -epsilon && det < epsilon) return false; // This ray is parallel to this triangle.
 
-        auto inv_det = 1.0 / det;
-        vec3 s = r.origin() - a;
-        auto u = inv_det * dot(s, h);
-        if (u < 0.0 || u > 1.0) return false;
+    auto inv_det = 1.0 / det;
+    vec3 s = r.origin() - a;
+    auto u = inv_det * dot(s, h);
+    if (u < 0.0 || u > 1.0) return false;
 
-        vec3 q = cross(s, edge1);
-        auto v = inv_det * dot(r.direction(), q);
-        if (v < 0.0 || u + v > 1.0) return false;
+    vec3 q = cross(s, edge1);
+    auto v = inv_det * dot(r.direction(), q);
+    if (v < 0.0 || u + v > 1.0) return false;
 
-        // At this stage we can compute t to find out where the intersection point is on the line.
-        auto t = inv_det * dot(edge2, q);
-        if (t > epsilon) { // ray intersection
-            rec.t = t;
-            rec.p = r.at(t);
-            rec.normal = unit_vector((1 - u - v) * normal_a + u * normal_b + v * normal_c);
-            rec.mat = mat;
-            rec.u = (1 - u - v) * texcoord_a.x() + u * texcoord_b.x() + v * texcoord_c.x();
-            rec.v = (1 - u - v) * texcoord_a.y() + u * texcoord_b.y() + v * texcoord_c.y();
-            return true;
-        } else // This means that there is a line intersection but not a ray intersection.
-            return false;
-    }
+    // At this stage we can compute t to find out where the intersection point is on the line.
+    auto t = inv_det * dot(edge2, q);
+    if (t > epsilon && t < ray_t.max && t > ray_t.min) { // ray intersection within the interval
+        rec.t = t;
+        rec.p = r.at(t);
+        rec.normal = unit_vector((1 - u - v) * normal_a + u * normal_b + v * normal_c);
+        rec.mat = mat;
+        rec.u = (1 - u - v) * texcoord_a.x() + u * texcoord_b.x() + v * texcoord_c.x();
+        rec.v = (1 - u - v) * texcoord_a.y() + u * texcoord_b.y() + v * texcoord_c.y();
+        return true;
+    } else // This means that there is a line intersection but not a ray intersection within the interval.
+        return false;
+}
 
     virtual aabb bounding_box() const override {
         point3 min_point(
