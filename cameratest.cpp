@@ -29,7 +29,6 @@ void bouncing_spheres(){
     auto mat = make_shared<lambertian>(color(.9,.1,.1));
     auto mat2 = make_shared<diffuse_light>(color(7, 7, 7));
     //auto mat = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    world.add(make_shared<TriangleMesh>("./external/dino.obj", mat, point3(13, 2, 3)));
 
 
     for (int a = -11; a < 11; a++) {
@@ -384,7 +383,7 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth) {
 
     camera cam;
 
-    cam.aspect_ratio      = 1.0;
+    cam.aspect_ratio      = 16.0 / 9.0;
     cam.image_width       = image_width;
     cam.samples_per_pixel = samples_per_pixel;
     cam.max_depth         = max_depth;
@@ -630,7 +629,7 @@ void render_single_triangle() {
 
 
 int main() {
-    switch(10){
+    switch(9){
         case 1: bouncing_spheres(); break;
         case 2: checkered_spheres(); break;
         case 3: external_img(); break;
@@ -639,7 +638,7 @@ int main() {
         case 6: simple_light(); break;
         case 7: cornell_box(); break;
         case 8: cornell_smoke(); break;
-        case 9: final_scene(800, 100, 50); break;
+        case 9: final_scene(1080, 250, 50); break;
         case 10: render_triangle(); break;
         case 11: render_mario(); break;
         case 12: render_single_triangle(); break;
