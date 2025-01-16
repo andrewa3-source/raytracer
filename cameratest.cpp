@@ -638,7 +638,7 @@ int main() {
         case 6: simple_light(); break;
         case 7: cornell_box(); break;
         case 8: cornell_smoke(); break;
-        case 9: final_scene(1080, 250, 50); break;
+        case 9: final_scene(1080, 2000, 50); break;
         case 10: render_triangle(); break;
         case 11: render_mario(); break;
         case 12: render_single_triangle(); break;
